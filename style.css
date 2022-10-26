@@ -1,0 +1,23 @@
+.prevent-text-select {
+    -webkit-user-select: none;
+    user-select: none;
+}
+.single-char{
+    border: 1px solid #ccc;
+}
+span {
+    padding: 10px;
+}
+
+.row {
+    position: relative;
+}
+
+.word-btn {
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    transform: translateY(-5px);
+    background-color: green;
+    border: none;
+}
