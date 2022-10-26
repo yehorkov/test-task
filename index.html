@@ -2,12 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title> Dev-3 Test task</title>
+    <title>Test assignment</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content overflow-scroll" role="main">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li>
+                <a class="navbar-brand" href=".">Test assignment</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content overflow-scroll" role="main">
     <h2 class="bd-title" id="content">How it works</h2>
     <p>Enter any text line, on submit a new line with your input will be appended.<br>
         Click on any character, and it will follow your cursor. Click again and the char will be inserted at your cursor
@@ -20,7 +29,7 @@
         <button class="btn btn-outline-success my-2 my-sm-0" type="button">Submit</button>
     </form>
     <div id="rows" class="prevent-text-select"></div>
-</div>
+</main>
 </body>
 <script src="script.js"></script>
 </html>
