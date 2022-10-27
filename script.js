@@ -1,5 +1,6 @@
 let move = false;
-let addRow = function () {
+
+function addNewRow () {
     let rows = document.getElementById("rows"),
         newRow = document.createElement("div"),
         userInput = document.getElementsByTagName("input")[0].value;
@@ -7,7 +8,8 @@ let addRow = function () {
     newRow.innerHTML = getDynamicRow(userInput);
     rows.append(newRow);
 };
-let getDynamicRow = function (userInput) {
+
+function getDynamicRow (userInput) {
     let resultElements = [],
         words = userInput.split(' ');
     for (let wordNum = 0; wordNum < words.length; wordNum++) {
@@ -23,26 +25,19 @@ let getDynamicRow = function (userInput) {
     return resultElements.join('');
 };
 
-let moveChar = function (event) {
+function moveLetter (event) {
     if (event.type === 'click') {
+
         if (move) {
             let closestChars = document.elementsFromPoint(event.pageX, event.pageY).filter((element) => {
-                return element.classList.contains('single-char') && !element.classList.contains('moving')
+                return element.classList.contains('single-char') && !element.classList.contains('moving');
             });
             if (closestChars.length > 0) {
-                swapCharPosition(document.getElementsByClassName('moving')[0], closestChars[0]);
-                move = false;
-                for (let elem of document.getElementsByClassName('moving')) {
-                    elem.classList.remove('moving');
-                }
+                swapLetterPosition(document.getElementsByClassName('moving')[0], closestChars[0]);
             }
+            stopMoving(event.target);
         } else {
-            let coordinates = event.target.getBoundingClientRect();
-            event.target.setAttribute('data-left', coordinates.x);
-            event.target.setAttribute('data-top', coordinates.y);
-            event.target.addEventListener('mousemove', moveChar);
-            event.target.classList.add('moving');
-            move = true;
+            prepareToMove(event.target);
         }
     } else if (event.type === 'mousemove') {
         event.target.style.position = 'fixed';
@@ -51,30 +46,57 @@ let moveChar = function (event) {
     }
 };
 
-
-let swapCharPosition = (movingChar, toSwapChar) => {
-    movingChar.setAttribute('ready', false);
-    toSwapChar.setAttribute('ready', false);
-
-    let temp = toSwapChar.outerHTML;
-    movingChar.style.position = '';
-    toSwapChar.outerHTML = movingChar.outerHTML;
-    movingChar.outerHTML = temp;
-    document.querySelectorAll('[ready="false"]').forEach((elem) => {
-        elem.addEventListener('click', moveChar);
-    });
-}
-
-let addEvents = () => {
-    let chars = document.getElementsByClassName('single-char');
-    for (let idx = 0; idx < chars.length; idx++) {
-        chars[idx].addEventListener('click', moveChar);
-        chars[idx].setAttribute('ready', true);
+function stopMoving (charElem) {
+    move = false;
+    for (let elem of document.getElementsByClassName('moving')) {
+        elem.classList.remove('moving');
+        elem.removeEventListener('mousemove', moveLetter);
     }
 }
 
-// Events
-document.querySelector('button').addEventListener('click', (event) => {
-    addRow();
+function prepareToMove (charElem) {
+    let coordinates = charElem.getBoundingClientRect();
+    charElem.setAttribute('data-left', coordinates.x);
+    charElem.setAttribute('data-top', coordinates.y);
+    charElem.addEventListener('mousemove', moveLetter);
+    charElem.classList.add('moving');
+    move = true;
+
+}
+
+function swapLetterPosition (movingChar, toSwapChar) {
+    movingChar.setAttribute('data-ready', false);
+    toSwapChar.setAttribute('data-ready', false);
+    if (toSwapChar.style.position) {
+        let temp = toSwapChar.innerHTML;
+        toSwapChar.innerHTML = movingChar.innerHTML;
+        movingChar.innerHTML = temp;
+        movingChar.style.position = '';
+        movingChar.style.top = '';
+        movingChar.style.left = '';
+    } else {
+        let temp = toSwapChar.outerHTML;
+        movingChar.style.position = '';
+        movingChar.style.top = '';
+        movingChar.style.left = '';
+        toSwapChar.outerHTML = movingChar.outerHTML;
+        movingChar.outerHTML = temp;
+        document.querySelectorAll('[data-ready="false"]').forEach((elem) => {
+            elem.addEventListener('click', moveLetter);
+            elem.setAttribute('data-ready', true);
+        });
+    }
+}
+
+function addEvents () {
+    let chars = document.getElementsByClassName('single-char');
+    for (let i = 0; i < chars.length; i++) {
+        chars[i].addEventListener('click', moveLetter);
+        chars[i].setAttribute('data-ready', true);
+    }
+}
+
+document.querySelector('button').addEventListener('click', () => {
+    addNewRow();
     addEvents();
 });
