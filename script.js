@@ -1,102 +1,111 @@
-let move = false;
+let moveElement = false;
+const submitBtn = document.querySelector('.btn');
 
-function addNewRow () {
-    let rows = document.getElementById("rows"),
-        newRow = document.createElement("div"),
-        userInput = document.getElementsByTagName("input")[0].value;
-    rows.append(document.createElement("br"));
+submitBtn.addEventListener('click', () => {
+    addNewRow('#rows', 'div', 'input', 'br');
+    addEvents('.single-letter');
+});
+
+function addNewRow (rowsSelector, newElement, inputSelector, lineBreak) {
+    const rows = document.querySelector(rowsSelector),
+          newRow = document.createElement(newElement),
+          userInput = document.querySelectorAll(inputSelector)[0].value,
+          lineBreaker = document.createElement(lineBreak);
+    rows.append(lineBreaker);
     newRow.innerHTML = getDynamicRow(userInput);
     rows.append(newRow);
 };
 
+function addEvents (letterSelector) {
+    let letters = document.querySelectorAll(letterSelector);
+    for (let i = 0; i < letters.length; i++) {
+        letters[i].addEventListener('click', moveLetter);
+        letters[i].setAttribute('data-ready', true);
+    }
+};
+
 function getDynamicRow (userInput) {
-    let resultElements = [],
+    let result = [],
         words = userInput.split(' ');
-    for (let wordNum = 0; wordNum < words.length; wordNum++) {
-        let chars = words[wordNum].split('');
-        for (let charNum = 0; charNum < chars.length; charNum++) {
-            resultElements.push(
-                `<span class="single-char" data-word-num="${wordNum}" data-char-num="${charNum}">${chars[charNum]}</span>`
+    for (let i = 0; i < words.length; i++) {
+        let letters = words[i].split('');
+
+        for (let j = 0; j < letters.length; j++) {
+            result.push(
+                `<span class="single-letter" data-word-num="${i}" data-letter-num="${j}">${letters[j]}</span>`
             );
 
         }
-        resultElements.push('<span>&nbsp;</span>');
+
+        result.push('<span>&nbsp;</span>');
     }
-    return resultElements.join('');
+    return result.join('');
+};
+
+function prepareToMove (letterElement) {
+    let coordinates = letterElement.getBoundingClientRect();
+    letterElement.setAttribute('data-left', coordinates.x);
+    letterElement.setAttribute('data-top', coordinates.y);
+    letterElement.addEventListener('mousemove', moveLetter);
+    letterElement.classList.add('moving');
+    moveElement = true;
 };
 
 function moveLetter (event) {
-    if (event.type === 'click') {
+    const target = event.target,
+          type = event.type,
+          movingLetter = document.querySelectorAll('.moving');
 
-        if (move) {
-            let closestChars = document.elementsFromPoint(event.pageX, event.pageY).filter((element) => {
-                return element.classList.contains('single-char') && !element.classList.contains('moving');
+    if (type === 'click') {
+
+        if (moveElement) {
+            let closestLetters = document.elementsFromPoint(event.pageX, event.pageY).filter((item) => {
+                return item.classList.contains('single-letter') && !item.classList.contains('moving');
             });
-            if (closestChars.length > 0) {
-                swapLetterPosition(document.getElementsByClassName('moving')[0], closestChars[0]);
+            if (closestLetters.length > 0) {
+                swapLetterPosition(movingLetter[0], closestLetters[0]);
             }
-            stopMoving(event.target);
+            stopMoving(target, '.moving');
         } else {
-            prepareToMove(event.target);
+            prepareToMove(target);
         }
-    } else if (event.type === 'mousemove') {
-        event.target.style.position = 'fixed';
-        event.target.style.left = (event.pageX - 15) + 'px';
-        event.target.style.top = (event.pageY - 15) + 'px';
+    } else if (type === 'mousemove') {
+        target.style.position = 'fixed';
+        target.style.left = (event.pageX - 5) + 'px';
+        target.style.top = (event.pageY - 5) + 'px';
     }
 };
 
-function stopMoving (charElem) {
-    move = false;
-    for (let elem of document.getElementsByClassName('moving')) {
-        elem.classList.remove('moving');
-        elem.removeEventListener('mousemove', moveLetter);
+function stopMoving (letterElement, movingSelector) {
+    const movingElements = document.querySelectorAll(movingSelector);
+    moveElement = false;
+
+    for (let item of movingElements) {
+        item.classList.remove('moving');
+        item.removeEventListener('mousemove', moveLetter);
     }
-}
+};
 
-function prepareToMove (charElem) {
-    let coordinates = charElem.getBoundingClientRect();
-    charElem.setAttribute('data-left', coordinates.x);
-    charElem.setAttribute('data-top', coordinates.y);
-    charElem.addEventListener('mousemove', moveLetter);
-    charElem.classList.add('moving');
-    move = true;
-
-}
-
-function swapLetterPosition (movingChar, toSwapChar) {
-    movingChar.setAttribute('data-ready', false);
-    toSwapChar.setAttribute('data-ready', false);
-    if (toSwapChar.style.position) {
-        let temp = toSwapChar.innerHTML;
-        toSwapChar.innerHTML = movingChar.innerHTML;
-        movingChar.innerHTML = temp;
-        movingChar.style.position = '';
-        movingChar.style.top = '';
-        movingChar.style.left = '';
+function swapLetterPosition (movingLetter, toSwapLetter) {
+    movingLetter.setAttribute('data-ready', false);
+    toSwapLetter.setAttribute('data-ready', false);
+    if (toSwapLetter.style.position) {
+        let temp = toSwapLetter.innerHTML;
+        toSwapLetter.innerHTML = movingLetter.innerHTML;
+        movingLetter.innerHTML = temp;
+        movingLetter.style.position = '';
+        movingLetter.style.top = '';
+        movingLetter.style.left = '';
     } else {
-        let temp = toSwapChar.outerHTML;
-        movingChar.style.position = '';
-        movingChar.style.top = '';
-        movingChar.style.left = '';
-        toSwapChar.outerHTML = movingChar.outerHTML;
-        movingChar.outerHTML = temp;
-        document.querySelectorAll('[data-ready="false"]').forEach((elem) => {
-            elem.addEventListener('click', moveLetter);
-            elem.setAttribute('data-ready', true);
+        let temp = toSwapLetter.outerHTML;
+        movingLetter.style.position = '';
+        movingLetter.style.top = '';
+        movingLetter.style.left = '';
+        toSwapLetter.outerHTML = movingLetter.outerHTML;
+        movingLetter.outerHTML = temp;
+        document.querySelectorAll('[data-ready').forEach((item) => {
+            item.addEventListener('click', moveLetter);
+            item.setAttribute('data-ready', true);
         });
     }
-}
-
-function addEvents () {
-    let chars = document.getElementsByClassName('single-char');
-    for (let i = 0; i < chars.length; i++) {
-        chars[i].addEventListener('click', moveLetter);
-        chars[i].setAttribute('data-ready', true);
-    }
-}
-
-document.querySelector('button').addEventListener('click', () => {
-    addNewRow();
-    addEvents();
-});
+};
