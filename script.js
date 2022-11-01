@@ -11,6 +11,7 @@ function addNewRow (rowsSelector, newElement, inputSelector, lineBreak) {
           newRow = document.createElement(newElement),
           userInput = document.querySelectorAll(inputSelector)[0].value,
           lineBreaker = document.createElement(lineBreak);
+
     rows.append(lineBreaker);
     newRow.innerHTML = getDynamicRow(userInput);
     rows.append(newRow);
@@ -18,6 +19,7 @@ function addNewRow (rowsSelector, newElement, inputSelector, lineBreak) {
 
 function addEvents (letterSelector) {
     let letters = document.querySelectorAll(letterSelector);
+
     for (let i = 0; i < letters.length; i++) {
         letters[i].addEventListener('click', moveLetter);
         letters[i].setAttribute('data-ready', true);
@@ -27,6 +29,7 @@ function addEvents (letterSelector) {
 function getDynamicRow (userInput) {
     let result = [],
         words = userInput.split(' ');
+
     for (let i = 0; i < words.length; i++) {
         let letters = words[i].split('');
 
@@ -62,13 +65,16 @@ function moveLetter (event) {
             let closestLetters = document.elementsFromPoint(event.pageX, event.pageY).filter((item) => {
                 return item.classList.contains('single-letter') && !item.classList.contains('moving');
             });
+
             if (closestLetters.length > 0) {
                 swapLetterPosition(movingLetter[0], closestLetters[0]);
             }
+
             stopMoving(target, '.moving');
         } else {
             prepareToMove(target);
         }
+
     } else if (type === 'mousemove') {
         target.style.position = 'fixed';
         target.style.left = (event.pageX - 5) + 'px';
@@ -89,6 +95,7 @@ function stopMoving (letterElement, movingSelector) {
 function swapLetterPosition (movingLetter, toSwapLetter) {
     movingLetter.setAttribute('data-ready', false);
     toSwapLetter.setAttribute('data-ready', false);
+    
     if (toSwapLetter.style.position) {
         let temp = toSwapLetter.innerHTML;
         toSwapLetter.innerHTML = movingLetter.innerHTML;
